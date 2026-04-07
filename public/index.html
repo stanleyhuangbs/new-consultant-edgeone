@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>企业家军师</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600&family=Noto+Sans+SC:wght@300;400;500&display=swap');
+
+  :root {
+    --ink: #1a1410;
+    --ink-soft: #4a3f35;
+    --ink-muted: #8a7a6e;
+    --paper: #f7f3ee;
+    --paper-warm: #ede8e1;
+    --paper-deep: #ddd6cc;
+    --accent: #8b3a1e;
+    --gold: #b8962e;
+    --border: rgba(26,20,16,0.12);
+    --border-soft: rgba(26,20,16,0.06);
+    --shadow: rgba(26,20,16,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Noto Sans SC', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(139,58,30,0.04) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(184,150,46,0.04) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .top-bar {
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--gold) 50%, var(--accent) 100%);
+    position: relative;
+    z-index: 10;
+    flex-shrink: 0;
+  }
+
+  header {
+    padding: 24px 40px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .logo-area {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .logo-cn {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: 0.1em;
+  }
+
+  .logo-sep {
+    width: 1px;
+    height: 16px;
+    background: var(--border);
+    align-self: center;
+  }
+
+  .logo-sub {
+    font-size: 11px;
+    color: var(--ink-muted);
+    letter-spacing: 0.2em;
+  }
+
+  .header-badge {
+    font-size: 11px;
+    color: var(--accent);
+    border: 1px solid rgba(139,58,30,0.2);
+    padding: 3px 8px;
+    border-radius: 2px;
+    letter-spacing: 0.1em;
+  }
+
+  /* 页面主体：flex列，撑满视口 */
+  .page {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-width: 760px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 32px;
+    position: relative;
+    z-index: 10;
+    min-height: 0;
+  }
+
+  /* 欢迎区 */
+  .welcome {
+    padding: 32px 0 24px;
+    border-bottom: 1px solid var(--border-soft);
+    flex-shrink: 0;
+  }
+
+  .welcome-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .welcome-ornament { width: 20px; height: 1px; background: var(--gold); }
+
+  .welcome-label {
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 0.3em;
+  }
+
+  .welcome h1 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 24px;
+    font-weight: 300;
+    color: var(--ink);
+    line-height: 1.6;
+    letter-spacing: 0.05em;
+  }
+
+  .welcome h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .welcome p {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--ink-muted);
+    line-height: 1.8;
+    letter-spacing: 0.03em;
+  }
+
+  /* 对话滚动区 */
+  #chat-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-height: 0;
+  }
+
+  #chat-scroll::-webkit-scrollbar { width: 4px; }
+  #chat-scroll::-webkit-scrollbar-track { background: transparent; }
+  #chat-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* 消息 */
+  .message {
+    display: flex;
+    gap: 12px;
+    animation: fadeUp 0.35s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .message.user { flex-direction: row-reverse; }
+
+  .avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+
+  .avatar-assistant {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Noto Serif SC', serif;
+  }
+
+  .avatar-user {
+    background: var(--paper-deep);
+    color: var(--ink-soft);
+  }
+
+  .bubble {
+    max-width: 80%;
+    padding: 13px 16px;
+    line-height: 1.85;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+  }
+
+  .message.assistant .bubble {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 2px 12px 12px 12px;
+    color: var(--ink);
+    box-shadow: 0 2px 10px var(--shadow);
+  }
+
+  .message.user .bubble {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 12px 2px 12px 12px;
+  }
+
+  /* 思考动画 */
+  .thinking {
+    display: flex;
+    gap: 12px;
+    animation: fadeUp 0.3s ease both;
+  }
+
+  .thinking-dots {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 2px 12px 12px 12px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 2px 10px var(--shadow);
+  }
+
+  .dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--ink-muted);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes pulse {
+    0%, 60%, 100% { opacity: 0.3; transform: scale(0.8); }
+    30% { opacity: 1; transform: scale(1); }
+  }
+
+  /* 输入区 */
+  .input-area {
+    padding: 16px 0 24px;
+    border-top: 1px solid var(--border-soft);
+    flex-shrink: 0;
+    background: var(--paper);
+  }
+
+  .error-msg {
+    background: rgba(139,58,30,0.06);
+    border: 1px solid rgba(139,58,30,0.15);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--accent);
+    margin-bottom: 10px;
+    display: none;
+    line-height: 1.6;
+  }
+
+  .input-wrapper {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    box-shadow: 0 2px 14px var(--shadow);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .input-wrapper:focus-within {
+    border-color: rgba(139,58,30,0.3);
+    box-shadow: 0 2px 18px rgba(139,58,30,0.08);
+  }
+
+  textarea {
+    flex: 1;
+    border: none;
+    outline: none;
+    resize: none;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--ink);
+    background: transparent;
+    line-height: 1.6;
+    letter-spacing: 0.02em;
+    max-height: 120px;
+    min-height: 22px;
+  }
+
+  textarea::placeholder { color: var(--ink-muted); }
+
+  .send-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    background: var(--ink);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s, transform 0.1s;
+    color: var(--paper);
+  }
+
+  .send-btn:hover { background: var(--accent); }
+  .send-btn:active { transform: scale(0.95); }
+  .send-btn:disabled { background: var(--paper-deep); cursor: not-allowed; }
+
+  .send-btn svg { width: 15px; height: 15px; }
+
+  .input-hint {
+    margin-top: 7px;
+    font-size: 11px;
+    color: var(--ink-muted);
+    text-align: center;
+    letter-spacing: 0.05em;
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 16px 20px; }
+    .page { padding: 0 16px; }
+    .welcome h1 { font-size: 20px; }
+    .bubble { font-size: 13px; max-width: 88%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar"></div>
+
+<header>
+  <div class="logo-area">
+    <span class="logo-cn">企业家军师</span>
+    <div class="logo-sep"></div>
+    <span class="logo-sub">私人管理顾问</span>
+  </div>
+  <span class="header-badge">内测版</span>
+</header>
+
+<div class="page">
+  <div class="welcome">
+    <div class="welcome-line">
+      <div class="welcome-ornament"></div>
+      <span class="welcome-label">每一次对话，都在这里</span>
+    </div>
+    <h1>把乱麻理清楚<br>然后说出那句<em>你需要听到的话</em></h1>
+    <p>20年企业管理咨询实践沉淀 · 私密 · 专业 · 有立场</p>
+  </div>
+
+  <div id="chat-scroll">
+    <div id="chat-container"></div>
+  </div>
+
+  <div class="input-area">
+    <div class="error-msg" id="error-msg"></div>
+    <div class="input-wrapper">
+      <textarea
+        id="user-input"
+        placeholder="说说你现在的状态，或者直接说想聊什么……"
+        rows="1"
+        oninput="autoResize(this)"
+        onkeydown="handleKeyDown(event)"
+      ></textarea>
+      <button class="send-btn" id="send-btn" onclick="sendMessage()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+    <p class="input-hint">Enter 发送 · Shift+Enter 换行</p>
+  </div>
+</div>
+
+<script>
+let messages = [];
+let isLoading = false;
+
+const openers = [
+  '你现在是什么状态——是有件事压着，还是只是想找个地方聊聊？',
+  '今天过来，是有什么事想理一理，还是就想说说话？',
+  '最近怎么样？有什么在心里转着？',
+  '这段时间，公司最让你放不下的是什么？',
+  '你现在是那种"有事要解决"的感觉，还是"不知道从哪里开始"的感觉？',
+];
+
+window.onload = () => {
+  const opener = openers[Math.floor(Math.random() * openers.length)];
+  addMessage('assistant', opener);
+  messages.push({ role: 'assistant', content: opener });
+};
+
+function addMessage(role, content) {
+  const container = document.getElementById('chat-container');
+  const div = document.createElement('div');
+  div.className = `message ${role}`;
+
+  const avatar = document.createElement('div');
+  avatar.className = `avatar avatar-${role}`;
+  avatar.textContent = role === 'assistant' ? '师' : '我';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.innerHTML = content.replace(/\n/g, '<br>');
+
+  div.appendChild(avatar);
+  div.appendChild(bubble);
+  container.appendChild(div);
+  scrollToBottom();
+}
+
+function showThinking() {
+  const container = document.getElementById('chat-container');
+  const div = document.createElement('div');
+  div.className = 'thinking';
+  div.id = 'thinking-indicator';
+  const avatar = document.createElement('div');
+  avatar.className = 'avatar avatar-assistant';
+  avatar.textContent = '师';
+  const dots = document.createElement('div');
+  dots.className = 'thinking-dots';
+  dots.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+  div.appendChild(avatar);
+  div.appendChild(dots);
+  container.appendChild(div);
+  scrollToBottom();
+}
+
+function hideThinking() {
+  const el = document.getElementById('thinking-indicator');
+  if (el) el.remove();
+}
+
+async function sendMessage() {
+  const input = document.getElementById('user-input');
+  const text = input.value.trim();
+  if (!text || isLoading) return;
+
+  hideError();
+  input.value = '';
+  autoResize(input);
+  addMessage('user', text);
+  messages.push({ role: 'user', content: text });
+
+  isLoading = true;
+  document.getElementById('send-btn').disabled = true;
+  showThinking();
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || `请求失败 (${res.status})`);
+    }
+
+    const data = await res.json();
+    hideThinking();
+    addMessage('assistant', data.content);
+    messages.push({ role: 'assistant', content: data.content });
+
+  } catch (err) {
+    hideThinking();
+    showError(err.message);
+  } finally {
+    isLoading = false;
+    document.getElementById('send-btn').disabled = false;
+    input.focus();
+  }
+}
+
+function handleKeyDown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function scrollToBottom() {
+  const scroll = document.getElementById('chat-scroll');
+  setTimeout(() => { scroll.scrollTop = scroll.scrollHeight; }, 50);
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = '出现问题：' + msg + '。请稍后再试。';
+  el.style.display = 'block';
+}
+
+function hideError() {
+  document.getElementById('error-msg').style.display = 'none';
+}
+</script>
+</body>
+</html>
